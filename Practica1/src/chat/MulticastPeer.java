@@ -1,37 +1,36 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package chat;
 
+import java.io.*;
 import java.net.*;
-import java.util.Arrays;
+import java.nio.charset.Charset;
+import javax.swing.JTextArea;
 
-/**
- *
- * @author pablopunk
- */
-public final class MulticastPeer implements Runnable {
+public class MulticastPeer implements Runnable {
 
     private MulticastSocket s;
-    private static final int port = 1182;
+    public JTextArea textArea;
+    private final int port = 1182;
     private InetAddress group;
+    private final String host = "224.0.0.1";
 
-    public MulticastPeer(String host) {
+    public MulticastPeer() {
         try {
             group = InetAddress.getByName(host);
             s = new MulticastSocket(port);
             s.joinGroup(group);
-            this.startListening();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private MulticastPeer() {
-        if (s == null) {
-            System.out.println("No se ha inicializado el servidor correctamente");
+    public MulticastPeer(JTextArea ta) {
+        try {
+            group = InetAddress.getByName(host);
+            s = new MulticastSocket(port);
+            s.joinGroup(group);
+            this.textArea = ta;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -46,21 +45,34 @@ public final class MulticastPeer implements Runnable {
     }
 
     public void startListening() {
-        (new Thread(new MulticastPeer("224.0.0.1"))).start();
+        (new Thread(new MulticastPeer(this.textArea))).start();
     }
 
     @Override
     public void run() {
         try {
-            byte[] buffer = new byte[1024];
             while (true) {
+                byte[] buffer = new byte[1024];
                 DatagramPacket msgIn = new DatagramPacket(buffer, buffer.length);
                 s.receive(msgIn);
-                System.out.println("Recibido: " + Arrays.toString(msgIn.getData()));
+
+                InputStreamReader input = new InputStreamReader(new ByteArrayInputStream(msgIn.getData()), Charset.forName("UTF-8"));
+                StringBuilder str = new StringBuilder();
+                for (int value; (value = input.read()) != -1;) {
+                    str.append((char) value);
+                }
+
+                String loquehabia = textArea.getText();
+                if (loquehabia == null) {
+                    loquehabia = "";
+                }
+                String nuevo = loquehabia + "\n" + msgIn.getAddress() + ": " + str;
+                nuevo = nuevo.trim(); // Quitar espacios finales
+                //System.out.println(str); // consola
+                textArea.setText(nuevo);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
-
 }
