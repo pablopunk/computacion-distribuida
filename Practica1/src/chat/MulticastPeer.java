@@ -9,9 +9,9 @@ public class MulticastPeer implements Runnable {
 
     private MulticastSocket s;
     public JTextArea textArea;
-    private final int port = 1182;
+    private final int port = 2345;
     private InetAddress group;
-    private final String host = "224.0.0.2";
+    private final String host = "224.0.0.100";
 
     public MulticastPeer() {
         try {
