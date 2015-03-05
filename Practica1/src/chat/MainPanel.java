@@ -5,7 +5,7 @@
  */
 package chat;
 
-import java.awt.Color;
+
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 
@@ -17,8 +17,6 @@ public class MainPanel extends javax.swing.JPanel {
 
     MulticastPeer peer;
     MulticastSocket s;
-    Color azul = new Color(102, 254, 255);
-    Color verde= new Color(102, 255, 102);
 
     /**
      * Creates new form MainPanel
@@ -107,11 +105,6 @@ public class MainPanel extends javax.swing.JPanel {
         // Enviar mensaje a multicast
         peer.sendMessage(jTextField1.getText());
         jTextField1.setText("");
-        if (jTextArea1.getForeground().equals(verde)) {
-            jTextArea1.setForeground(azul);
-        } else {
-            jTextArea1.setForeground(verde);
-        } // Cambia de color cada vez que recibo un mensaje
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
