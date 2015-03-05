@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.charset.Charset;
 import javax.swing.JTextArea;
+import java.awt.Color;
 
 public class MulticastPeer implements Runnable {
 
@@ -12,6 +13,8 @@ public class MulticastPeer implements Runnable {
     private final int port = 2345;
     private InetAddress group;
     private final String host = "224.0.0.100";
+    Color azul = new Color(102, 254, 255);
+    Color verde = new Color(102, 255, 102);
 
     public MulticastPeer() {
         try {
@@ -69,6 +72,13 @@ public class MulticastPeer implements Runnable {
                 String nuevo = loquehabia + "\n" + msgIn.getAddress() + ": " + str;
                 nuevo = nuevo.trim(); // Quitar espacios finales
                 //System.out.println(str); // consola
+
+                if (textArea.getForeground().equals(verde)) {
+                    textArea.setForeground(azul);
+                } else {
+                    textArea.setForeground(verde);
+                } // Cambia de color cada vez que recibo un mensaje
+
                 textArea.setText(nuevo);
             }
         } catch (Exception e) {
