@@ -12,6 +12,7 @@ import java.time.*;
  * @author pol
  */
 public class Suscriptor {
+    private String IP;
     private int segundos; // segundos pedidos
     private Instant fechaInicio;
     private Instant fechaFin;

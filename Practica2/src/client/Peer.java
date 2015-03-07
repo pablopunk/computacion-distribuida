@@ -5,32 +5,37 @@
  */
 package client;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.rmi.*;
+import javax.swing.JTextArea;
 import server.ServerInterface;
 
 /**
  *
  * @author pol
  */
-public class Peer {
-    
+public final class Peer {
+
     private final static int RMIPort = 1821;
+    public final static int dataPort = 1822;
     private final static String hostname = "127.0.0.1";
     private static ServerInterface serverInterface;
 
     Peer() {
         conectarServer();
     }
+   
 
-    public void pedirSuscripcion(String host, int segundos) throws RemoteException {
-        serverInterface.suscribirse(host, segundos);
+    public void pedirSuscripcion(int segundos) throws RemoteException {
+        serverInterface.suscribirse(segundos);
     }
 
-    public void cancelarSuscripcion(String host) throws RemoteException {
-        serverInterface.cancelarSuscripcion(host);
+    public void cancelarSuscripcion() throws RemoteException {
+        serverInterface.cancelarSuscripcion();
     }
-    
-    public static void conectarServer() {
+
+    public void conectarServer() {
         try {
             String registryURL = "rmi://" + hostname + ":" + RMIPort + "/server";
             // find the remote object and cast it to an interface object
@@ -39,5 +44,6 @@ public class Peer {
             System.out.println(e);
         }
     }
+    
 
 }

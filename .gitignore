@@ -1,1 +1,5 @@
-Practica1/nbproject
+Practica1/nbproject/
+Practica1/nbproject/*
+/Practica2/nbproject/private/
+/Practica2/build/
+/Practica2/dist/

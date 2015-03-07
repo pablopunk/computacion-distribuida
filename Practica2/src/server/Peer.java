@@ -5,7 +5,13 @@
  */
 package server;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -19,9 +25,10 @@ import java.time.*;
  *
  * @author pol
  */
-public class Peer {
+public final class Peer {
 
     private final static int RMIPort = 1821;
+    private final static int dataPort = 1822;
     private final static String hostname = "127.0.0.1";
 
     private HashMap<String, Suscriptor> suscriptores;
@@ -42,7 +49,7 @@ public class Peer {
         }
     }
 
-    public void enviarNumeros(float aleatorio) {
+    public void enviarNumeros(float aleatorio) throws SocketException, IOException {
         Iterator it = suscriptores.entrySet().iterator();
         while (it.hasNext()) {
             Instant ahora = Instant.now(); // Ahora
@@ -52,11 +59,26 @@ public class Peer {
             Suscriptor sub = (Suscriptor) actual.getValue();
 
             if (ahora.isBefore(sub.getFechaFin())) { // Si todavia esta suscrito
-                System.out.println("Enviar " + aleatorio + " a " + host);
+                enviarA(host, aleatorio);
             } else { // si se ha agotado el tiempo de suscripcion
+                enviarA(host, -1.0f);
                 System.out.println("Agotado el tiempo para " + host);
                 suscriptores.remove(host); // lo elimino si caducó la suscripcion
             }
+        }
+    }
+    
+    private void enviarA(String host, float dato) throws SocketException, UnknownHostException, IOException {
+        try {
+            DatagramSocket cliente = new DatagramSocket();
+            byte[] sendData = new byte[(int) Float.SIZE/8];
+            sendData = (dato+"").getBytes(); // conversion a string y luego a bytes
+            DatagramPacket sendpacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName(host), dataPort);
+            System.out.println("Enviar " + dato + " a " + InetAddress.getByName(host));
+            cliente.send(sendpacket);
+            cliente.close();
+        } catch (Exception e) {
+            System.out.println(e);
         }
     }
 

@@ -5,10 +5,10 @@ import java.rmi.*;
 
 public interface ServerInterface extends Remote {
     
-   public void suscribirse(String host, int segundos) 
+   public void suscribirse(int segundos) 
       throws java.rmi.RemoteException;
    
-   public void cancelarSuscripcion(String host) 
+   public void cancelarSuscripcion() 
       throws java.rmi.RemoteException;
 
 } //end interface
