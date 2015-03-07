@@ -5,6 +5,9 @@
  */
 package server;
 
+import java.net.MalformedURLException;
+import java.rmi.RemoteException;
+
 /**
  *
  * @author pol
@@ -13,10 +16,8 @@ public class Main {
 
     private static Peer peer;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws MalformedURLException, RemoteException {
         peer = new Peer();
-        peer.escuchar(); // empiezo a escuchar a los clientes
-        peer.suscribirse("localhost", 10);
         generarAleatorios(); // empiezo a generar aleatorios
     }
 
@@ -30,7 +31,7 @@ public class Main {
                         peer.enviarNumeros((float) Math.random());
                     }
                 });
-                
+
                 enviarThread.start();
             }
         } catch (Exception e) {

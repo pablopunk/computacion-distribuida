@@ -6,7 +6,7 @@
 package client;
 
 import java.awt.Color;
-import javafx.scene.layout.Border;
+import java.rmi.RemoteException;
 
 /**
  *
@@ -19,6 +19,7 @@ public class MainPanel extends javax.swing.JPanel {
     private final Color Verde = new Color(51, 255, 153);
     private final Color Rojo = new Color(255, 51, 51);
     private final Color Naranja = new Color(255, 153, 51);
+    private final Color Negro = new Color(30, 30, 30);
 
     /**
      * Creates new form MainPanel
@@ -36,6 +37,8 @@ public class MainPanel extends javax.swing.JPanel {
         CancelarButton.setBackground(Rojo);
         SuscribirseButton.setOpaque(true);         // Para ver el fondo
         SuscribirseButton.setBorderPainted(false); // *
+        segundosSpinner.setOpaque(true);
+        segundosSpinner.setBackground(Negro);
     }
 
     /**
@@ -54,6 +57,7 @@ public class MainPanel extends javax.swing.JPanel {
         datosArea = new javax.swing.JTextArea();
         jLabel2 = new javax.swing.JLabel();
         CancelarButton = new javax.swing.JButton();
+        hostTextField = new javax.swing.JTextField();
 
         setBackground(new java.awt.Color(30, 30, 30));
 
@@ -65,6 +69,9 @@ public class MainPanel extends javax.swing.JPanel {
                 SuscribirseButtonActionPerformed(evt);
             }
         });
+
+        segundosSpinner.setEditor(new javax.swing.JSpinner.NumberEditor(segundosSpinner, ""));
+        segundosSpinner.setVerifyInputWhenFocusTarget(false);
 
         jLabel1.setFont(new java.awt.Font("Avenir Next", 0, 18)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(200, 200, 200));
@@ -89,6 +96,19 @@ public class MainPanel extends javax.swing.JPanel {
             }
         });
 
+        hostTextField.setText("Usuario");
+        hostTextField.setToolTipText("");
+        hostTextField.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                hostTextFieldMouseClicked(evt);
+            }
+        });
+        hostTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hostTextFieldActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -103,9 +123,12 @@ public class MainPanel extends javax.swing.JPanel {
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addGap(27, 27, 27)
-                .addComponent(segundosSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(segundosSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 97, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jLabel1))
+                    .addComponent(hostTextField))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(SuscribirseButton, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
@@ -121,7 +144,9 @@ public class MainPanel extends javax.swing.JPanel {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 62, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                        .addComponent(hostTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(segundosSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -140,7 +165,19 @@ public class MainPanel extends javax.swing.JPanel {
 
         int segundos = Integer.parseInt(segundosSpinner.getValue().toString());
 
-        suscribirse(segundos); // para el servidor suscribirse y renovar es lo mismo
+        if (segundos <= 0) { // Valor erroneo
+            segundosSpinner.setBackground(Rojo);
+            return;
+        }
+        segundosSpinner.setBackground(Negro);
+
+        String host = hostTextField.getText().trim();
+
+        try {
+            suscribirse(host, segundos); // para el servidor suscribirse y renovar es lo mismo
+        } catch (RemoteException ex) {
+            System.out.println(ex.getMessage());
+        }
         CancelarButton.setVisible(true); // visible
 
         if (SuscribirseButton.getText().equals("Suscribirse")) {
@@ -151,25 +188,39 @@ public class MainPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_SuscribirseButtonActionPerformed
 
     private void CancelarButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CancelarButtonActionPerformed
-        // TODO add your handling code here:
-        cancelarSuscripcion();
-        CancelarButton.setVisible(false);
-        SuscribirseButton.setText("Suscribirse");
-        SuscribirseButton.setBackground(Verde);
+        try {
+            String host = hostTextField.getText().trim();
+            cancelarSuscripcion(host);
+            CancelarButton.setVisible(false);
+            SuscribirseButton.setText("Suscribirse");
+            SuscribirseButton.setBackground(Verde);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }//GEN-LAST:event_CancelarButtonActionPerformed
 
-    private void cancelarSuscripcion() {
-        cliente.cancelarSuscripcion();
+    private void hostTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hostTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_hostTextFieldActionPerformed
+
+    private void hostTextFieldMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_hostTextFieldMouseClicked
+        // TODO add your handling code here:
+        hostTextField.setText("");
+    }//GEN-LAST:event_hostTextFieldMouseClicked
+
+    private void cancelarSuscripcion(String host) throws RemoteException {
+        cliente.cancelarSuscripcion(host);
     }
 
-    private void suscribirse(int segundos) { // Para el servidor renovar y suscribirse es lo mismo
-        cliente.pedirSuscripcion(segundos);
+    private void suscribirse(String host, int segundos) throws RemoteException { // Para el servidor renovar y suscribirse es lo mismo
+        cliente.pedirSuscripcion(host, segundos);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton CancelarButton;
     private javax.swing.JButton SuscribirseButton;
     private javax.swing.JTextArea datosArea;
+    private javax.swing.JTextField hostTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
