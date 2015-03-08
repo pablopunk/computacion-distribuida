@@ -5,8 +5,11 @@
  */
 package server;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.rmi.RemoteException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -28,7 +31,11 @@ public class Main {
                 Thread enviarThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        peer.enviarNumeros((float) Math.random());
+                        try {
+                            peer.enviarNumeros((float) Math.random());
+                        } catch (IOException ex) {
+                            System.out.println(ex);
+                        }
                     }
                 });
 
