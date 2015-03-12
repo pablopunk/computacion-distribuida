@@ -15,18 +15,18 @@ public class ServerImplementation extends UnicastRemoteObject
     }
 
     @Override
-    public void suscribirse(int segundos) throws RemoteException {
+    public void suscribirse(int segundos, int puerto) throws RemoteException {
         try {
-            peer.suscribirse(getClientHost(), segundos);
+            peer.suscribirse(getClientHost()+":"+puerto, segundos, puerto);
         } catch (ServerNotActiveException ex) {
             System.out.println(ex);
         }
     }
 
     @Override
-    public void cancelarSuscripcion() throws RemoteException {
+    public void cancelarSuscripcion(int puerto) throws RemoteException {
         try {
-            peer.cancelarSuscripcion(getClientHost());
+            peer.cancelarSuscripcion(getClientHost()+":"+puerto);
         } catch (ServerNotActiveException ex) {
             System.out.println(ex);
         }

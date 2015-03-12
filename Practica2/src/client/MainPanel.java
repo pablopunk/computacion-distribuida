@@ -6,8 +6,10 @@
 package client;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.ServerSocket;
 import java.rmi.RemoteException;
 
 /**
@@ -205,6 +207,7 @@ public class MainPanel extends javax.swing.JPanel {
             cancelarSuscripcion();
             CancelarButton.setVisible(false);
             SuscribirseButton.setText("Suscribirse");
+            SuscribirseButton.setBackground(Verde);
             segundos = 0;
             segundosRestantesLabel.setText("0 segundos");
         } catch (Exception e) {
@@ -218,7 +221,7 @@ public class MainPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_limpiarDatosButtonActionPerformed
 
     private void cancelarSuscripcion() throws RemoteException {
-        cliente.cancelarSuscripcion();
+        cliente.cancelarSuscripcion(cliente.dataPort);
     }
 
     private void suscribirse(int segundos) throws RemoteException { // Para el servidor renovar y suscribirse es lo mismo
@@ -230,7 +233,9 @@ public class MainPanel extends javax.swing.JPanel {
             public void run() {
                 try {
                     //segundos--;
-                    DatagramSocket serverSocket = new DatagramSocket(Peer.dataPort);
+                    cliente.dataPort = freePort();
+                    System.out.println("Escuchando en " + cliente.dataPort);
+                    DatagramSocket serverSocket = new DatagramSocket(cliente.dataPort);
                     byte[] receiveData = new byte[1024];
                     while (true) {
                         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -270,6 +275,14 @@ public class MainPanel extends javax.swing.JPanel {
         });
 
         t.start();
+    }
+
+    private int freePort() throws IOException {
+        try (
+                ServerSocket socket = new ServerSocket(0);) {
+            return (int) socket.getLocalPort();
+
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

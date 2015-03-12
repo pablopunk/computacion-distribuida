@@ -28,7 +28,6 @@ import java.time.*;
 public final class Peer {
 
     private final static int RMIPort = 1821;
-    private final static int dataPort = 1822;
     private final static String hostname = "127.0.0.1";
 
     private HashMap<String, Suscriptor> suscriptores;
@@ -38,8 +37,8 @@ public final class Peer {
         iniciarServer();
     }
 
-    void suscribirse(String host, int segundos) {
-        Suscriptor sub = new Suscriptor(segundos);
+    void suscribirse(String host, int segundos, int puerto) {
+        Suscriptor sub = new Suscriptor(segundos, puerto);
         suscriptores.put(host, sub); // si ya existe se remplaza por el nuevo valor
     }
 
@@ -51,30 +50,34 @@ public final class Peer {
 
     public void enviarNumeros(float aleatorio) throws SocketException, IOException {
         Iterator it = suscriptores.entrySet().iterator();
+        System.out.println("Enviar datos a " + suscriptores.size() + " suscriptores");
         while (it.hasNext()) {
             Instant ahora = Instant.now(); // Ahora
 
             Map.Entry actual = (Map.Entry) it.next(); // suscriptor
             String host = (String) actual.getKey();
+            host = getHost(host);
             Suscriptor sub = (Suscriptor) actual.getValue();
+            int puerto = sub.getPuertoEscucha();
 
             if (ahora.isBefore(sub.getFechaFin())) { // Si todavia esta suscrito
-                enviarA(host, aleatorio);
+                System.out.println("Enviando al puerto " + puerto);
+                enviarA(host, aleatorio, puerto);
             } else { // si se ha agotado el tiempo de suscripcion
-                enviarA(host, -1.0f);
+                enviarA(host, -1.0f, puerto);
                 System.out.println("Agotado el tiempo para " + host);
-                suscriptores.remove(host); // lo elimino si caducó la suscripcion
+                suscriptores.remove(host+":"+puerto); // lo elimino si caducó la suscripcion
             }
         }
     }
-    
-    private void enviarA(String host, float dato) throws SocketException, UnknownHostException, IOException {
+
+    private void enviarA(String host, float dato, int puerto) throws SocketException, UnknownHostException, IOException {
         try {
             DatagramSocket cliente = new DatagramSocket();
-            byte[] sendData = new byte[(int) Float.SIZE/8];
-            sendData = (dato+"").getBytes(); // conversion a string y luego a bytes
-            DatagramPacket sendpacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName(host), dataPort);
-            System.out.println("Enviar " + dato + " a " + InetAddress.getByName(host));
+            byte[] sendData = new byte[(int) Float.SIZE / 8];
+            sendData = (dato + "").getBytes(); // conversion a string y luego a bytes
+            DatagramPacket sendpacket = new DatagramPacket(sendData, sendData.length, InetAddress.getByName(host), puerto);
+            System.out.println("Enviar " + dato + " a " + InetAddress.getByName(host)+":" + puerto);
             cliente.send(sendpacket);
             cliente.close();
         } catch (Exception e) {
@@ -127,4 +130,14 @@ public final class Peer {
             System.out.println(names[i]);
         }
     } //end listRegistry
+    
+    private String getHost(String hostypuerto) {
+        int i = 0;
+        for (i = 0; i < hostypuerto.length(); i++) {
+            if (hostypuerto.charAt(i) == ':')
+                break;
+        }
+        
+        return hostypuerto.substring(0, i);
+    }
 }

@@ -18,7 +18,7 @@ import server.ServerInterface;
 public final class Peer {
 
     private final static int RMIPort = 1821;
-    public final static int dataPort = 1822;
+    public int dataPort;
     private final static String hostname = "127.0.0.1";
     private static ServerInterface serverInterface;
 
@@ -28,11 +28,11 @@ public final class Peer {
    
 
     public void pedirSuscripcion(int segundos) throws RemoteException {
-        serverInterface.suscribirse(segundos);
+        serverInterface.suscribirse(segundos, dataPort);
     }
 
-    public void cancelarSuscripcion() throws RemoteException {
-        serverInterface.cancelarSuscripcion();
+    public void cancelarSuscripcion(int puerto) throws RemoteException {
+        serverInterface.cancelarSuscripcion(puerto);
     }
 
     public void conectarServer() {

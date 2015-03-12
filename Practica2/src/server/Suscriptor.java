@@ -16,11 +16,14 @@ public class Suscriptor {
     private int segundos; // segundos pedidos
     private Instant fechaInicio;
     private Instant fechaFin;
+    private int puertoEscucha;
     
-    Suscriptor (int seg) {
+    Suscriptor (int seg, int puerto) {
         segundos = seg;
         fechaInicio = Instant.now();
         fechaFin = fechaInicio.plusSeconds(seg);
+        
+        puertoEscucha = puerto;
     }
 
     public void setSegundos(int seg) {
@@ -39,6 +42,10 @@ public class Suscriptor {
 
     public Instant getFechaFin() {
         return fechaFin;
+    }
+
+    public int getPuertoEscucha() {
+        return puertoEscucha;
     }
     
 }
