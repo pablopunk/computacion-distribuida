@@ -205,7 +205,8 @@ public class MainPanel extends javax.swing.JPanel {
             cancelarSuscripcion();
             CancelarButton.setVisible(false);
             SuscribirseButton.setText("Suscribirse");
-            SuscribirseButton.setBackground(Verde);
+            segundos = 0;
+            segundosRestantesLabel.setText("0 segundos");
         } catch (Exception e) {
             System.out.println(e);
         }

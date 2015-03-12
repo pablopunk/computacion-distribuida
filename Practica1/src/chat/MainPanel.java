@@ -6,7 +6,6 @@
 package chat;
 
 
-import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 
 /**
